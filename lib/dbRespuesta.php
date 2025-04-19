@@ -1,163 +1,92 @@
 <?php
-	include_once "./lib/db.php";
-	class Respuesta{
-		private $con;
-		private $id;
-		private $respuesta;
-		private $fecha;
-		private $pregunta;
-		private $encuesta;
+class Respuesta {
+    private $respuesta;
+    private $pregunta;
+    private $encuesta;
+    private $encuestado;
 
-	
-		
-		function __construct(){
-			$this->connect_db();
-		}
-		
-		public function connect_db(){
-			$c = new DB();
-			$this->con = $c->connection();
-		}	
-		
-		public function getId(){
-			return $this->id;
-		}
-		
-		public function get_respuesta(){
-			return $this->respuesta;
-		}
-		
-		public function set_respuesta($respuesta){
-			$this->respuesta = $respuesta;
-		}
-		
-		public function get_fecha(){
-			return $this->fecha;
-		}
-		
-		public function set_fecha($fecha){
-			$this->fecha = $fecha;
-		}
-		
-		public function get_pregunta(){
-			return $this->pregunta;
-		}
-		
-		public function set_pregunta($pregunta){
-			$this->pregunta = $pregunta;
-		}
-		
-		public function get_encuesta(){
-			return $this->encuesta;
-		}
-		
-		public function set_encuesta($encuesta){
-			$this->encuesta = $encuesta;
-		}
-		
-		public function get_encuestado(){
-			return $this->encuestado;
-		}
-		
-		public function set_encuestado($encuestado){
-			$this->encuestado = $encuestado;
-		}
-		
-		
-		public function read($id){
-			$sql = "SELECT * FROM respuestas WHERE id = ". $id;
-			//echo $sql;
-			$res = mysqli_query($this->con, $sql);
-			
-			if ($res != FALSE){
-				$tupla = mysqli_fetch_assoc($res);
-				$this->id = $tupla['id'];
-				$this->respuesta = $tupla['respuesta'];
-				$this->fecha = $tupla['fecha'];
-				$this->pregunta = $tupla['pregunta'];
-				$this->encuesta = $tupla['encuesta'];
-				$res = TRUE;
-			}
+    // Métodos getters y setters
+    public function get_respuesta() {
+        return $this->respuesta;
+    }
 
-			return $res;
-		}
-		
-		public function add(){
-			$sql = "INSERT INTO `respuestas` (`respuesta`, `pregunta`, `encuesta`, `encuestado`) VALUES ('";
-			$sql .= $this->respuesta . "', '";
-			$sql .= $this->pregunta . "', '";
-			$sql .= $this->encuesta . "', '";
-			$sql .= $this->encuestado . "')";
-			
-			//echo $sql;
-			$res = mysqli_query($this->con, $sql);
-			if($res){
-				return true;
-			}else{
-				return false;
-			}
+    public function set_respuesta($respuesta) {
+        $this->respuesta = $respuesta;
+    }
 
-			return $res;
-		}
-		
-		public function respuestas_pregunta($pregunta){
-			$sql = "SELECT * FROM respuestas WHERE pregunta = ". $pregunta;
-			//echo $sql;
-			$res = mysqli_query($this->con, $sql);
-			
-			if($res){
-				while($row = mysqli_fetch_array($res)){
-					$rows[] = $row;
-				}
-			}else
-				$rows=FALSE;
+    public function get_pregunta() {
+        return $this->pregunta;
+    }
 
-			return $rows;
-		}
-		
-		public function respuestas_encuesta($encuesta){
-			$sql = "SELECT * FROM respuestas WHERE encuesta = ". $encuesta;
-			//echo $sql;
-			$res = mysqli_query($this->con, $sql);
-			
-			if($res){
-				while($row = mysqli_fetch_array($res)){
-					$rows[] = $row;
-				}
-			}else
-				$rows=FALSE;
+    public function set_pregunta($pregunta) {
+        $this->pregunta = $pregunta;
+    }
 
-			return $rows;
-		}
-		
-		public function respuestas_docente($docente){
-			$sql = "SELECT * FROM respuestas, encuestas WHERE respuestas.encuesta = encuesta.id AND encuesta.docente = ". $docente;
-			//echo $sql;
-			$res = mysqli_query($this->con, $sql);
-			
-			if($res){
-				while($row = mysqli_fetch_array($res)){
-					$rows[] = $row;
-				}
-			}else
-				$rows=FALSE;
+    public function get_encuesta() {
+        return $this->encuesta;
+    }
 
-			return $rows;
-		}
-		
-		public function respuestas_espacio_curricular($espacio_curricular){
-			$sql = "SELECT * FROM respuestas, encuestas WHERE respuestas.encuesta = encuesta.id AND encuesta.espacio_curricular = ". $espacio_curricular;
-			//echo $sql;
-			$res = mysqli_query($this->con, $sql);
-			
-			if($res){
-				while($row = mysqli_fetch_array($res)){
-					$rows[] = $row;
-				}
-			}else
-				$rows=FALSE;
+    public function set_encuesta($encuesta) {
+        $this->encuesta = $encuesta;
+    }
 
-			return $rows;
-		}
-	}
+    public function get_encuestado() {
+        return $this->encuestado;
+    }
+
+    public function set_encuestado($encuestado) {
+        $this->encuestado = $encuestado;
+    }
+
+    // Método para enviar datos a la API
+    public function respuesta_desde_api() {
+        // Prepara los datos del objeto actual para enviarlos a la API
+        $data = array(
+            'respuesta' => $this->respuesta,
+            'pregunta' => $this->pregunta,
+            'encuesta' => $this->encuesta,
+            'encuestado' => $this->encuestado
+        );
+
+        // Convierte los datos a formato JSON
+        $jsonData = json_encode($data);
+
+        // URL del endpoint de la API
+        $url = 'http://localhost:3000/respuestas'; // Cambia si usas un prefijo como /api
+
+        // Inicializa cURL
+        $ch = curl_init($url);
+
+        // Configura cURL para enviar una solicitud POST con JSON
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); // Recibir la respuesta como string
+        curl_setopt($ch, CURLOPT_POST, true); // Indica que es una solicitud POST
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+            'Content-Type: application/json' // Especifica que el contenido es JSON
+        ));
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonData); // Datos JSON a enviar
+
+        // Ejecuta la solicitud
+        $response = curl_exec($ch);
+
+        // Maneja errores de cURL
+        if (curl_errno($ch)) {
+            echo 'Error en cURL: ' . curl_error($ch);
+            curl_close($ch);
+            return false; // Devuelve false si hay un error
+        }
+
+        // Cierra cURL
+        curl_close($ch);
+
+        // Decodifica la respuesta de la API
+        $result = json_decode($response, true);
+
+        // Verifica si la API devolvió un estado exitoso
+        if (isset($result['status']) && $result['status'] === 'success') {
+            return true; // Devuelve true si la respuesta fue exitosa
+        } else {
+            return false; // Devuelve false si hubo un error en la API
+        }
+    }
+}
 ?>
