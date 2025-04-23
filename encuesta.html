@@ -628,6 +628,45 @@
   <script src="js/custom.js"></script>
 
 
+  <script>
+    document.getElementById('form').addEventListener('submit', async (e) => {
+      e.preventDefault(); // Evita que el formulario recargue la página
+  
+      // Captura los datos del formulario
+      const data = {
+        condicion_cursado: document.getElementById('condicion-cursado').value,
+        asistencia: document.getElementById('asistencia').value,
+        docente_comision: document.querySelector('input[name="docente-comision"]:checked')?.value,
+        teoricas: document.getElementById('teoricas').checked ? document.getElementById('teoricas').value : null,
+        practicas: document.getElementById('practicas').checked ? document.getElementById('practicas').value : null,
+        teorico_practicas: document.getElementById('teorico-practicas').checked ? document.getElementById('teorico-practicas').value : null,
+        otras: document.getElementById('otras').checked ? document.getElementById('otras-texto').value : null,
+        valoracion_docente: document.getElementById('valoracion-docente').value,
+        comentarios: document.getElementById('comentarios').value
+      };
+  
+      try {
+        // Envía los datos a la API
+        const response = await fetch('http://localhost:3000/respuestas', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
+        });
+  
+        if (response.ok) {
+          alert('Encuesta enviada exitosamente');
+        } else {
+          alert('Error al enviar la encuesta');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Error al conectar con la API');
+      }
+    });
+  </script>
+
 </body>
 
 </html>
